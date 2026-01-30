@@ -1,8 +1,8 @@
-# Markdown Presentations
+# VibeSlides
 
 ## Overview
 
-Markdown Presentations is a web application that transforms markdown files into beautiful, interactive slide presentations. It allows users to present content from local markdown files or create live presentations by pasting markdown directly into the browser.
+VibeSlides is a web application that transforms markdown files into beautiful, interactive slide presentations. It allows users to present content from local markdown files or create live presentations by pasting markdown directly into the browser.
 
 ### Business Purpose
 
@@ -39,7 +39,7 @@ Key benefits:
 ### Project Structure
 
 ```
-md-presentations/
+vibeslides/
 ├── app/                          # Next.js App Router
 │   ├── page.tsx                  # Home page - presentation grid
 │   ├── layout.tsx                # Root layout with fonts
@@ -223,7 +223,7 @@ Both settings persist in localStorage.
 ```bash
 # Clone repository
 git clone <repo-url>
-cd md-presentations
+cd vibeslides
 
 # Install dependencies
 npm install
