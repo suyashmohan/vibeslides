@@ -406,8 +406,30 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
     }
   }, [showSettingsMenu]);
 
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
+  // Sync fullscreen state with browser fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch (error) {
+      console.error('Fullscreen error:', error);
+      // Fallback: toggle the state even if fullscreen API fails
+      setIsFullscreen(!isFullscreen);
+    }
   };
 
   if (!presentation) {
@@ -434,7 +456,8 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
       className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} flex flex-col`}
       style={{ backgroundColor: 'var(--color-ink)' }}
     >
-      {/* Header */}
+      {/* Header - hidden in fullscreen */}
+      {!isFullscreen && (
       <div 
         className="flex items-center justify-between px-4 md:px-6 py-4 border-b relative"
         style={{ 
@@ -598,9 +621,10 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
           </button>
         </div>
       </div>
+      )}
 
-      {/* Slide Container */}
-      <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-hidden relative z-0">
+      {/* Slide Container - full screen in fullscreen mode */}
+      <div className={`flex-1 flex items-center justify-center overflow-hidden relative z-0 ${isFullscreen ? '' : 'p-4 md:p-8'}`}>
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentSlide}
@@ -610,10 +634,10 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
             animate="center"
             exit="exit"
             transition={slideTransitionConfig}
-            className="w-full max-w-6xl overflow-hidden rounded-lg shadow-2xl"
+            className={`w-full overflow-hidden ${isFullscreen ? 'h-full max-w-none rounded-none' : 'max-w-6xl rounded-lg shadow-2xl'}`}
             style={{ 
               backgroundColor: 'var(--color-rice)',
-              boxShadow: '0 25px 80px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(196, 184, 168, 0.1)'
+              boxShadow: isFullscreen ? 'none' : '0 25px 80px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(196, 184, 168, 0.1)'
             }}
             onAnimationComplete={() => {
               // Reset element counter when slide animation completes
@@ -797,7 +821,9 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation Buttons */}
+        {/* Navigation Buttons - hidden in fullscreen */}
+        {!isFullscreen && (
+        <>
         <button
           onClick={prevSlide}
           disabled={currentSlide === 0}
@@ -837,9 +863,12 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
         >
           <ChevronRight className="w-6 h-6" />
         </button>
+        </>
+        )}
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar - hidden in fullscreen */}
+      {!isFullscreen && (
       <div style={{ height: '3px', backgroundColor: 'rgba(196, 184, 168, 0.2)' }}>
         <motion.div
           style={{ height: '100%', backgroundColor: 'var(--color-sage)' }}
@@ -850,8 +879,10 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
           transition={{ duration: 0.3 }}
         />
       </div>
+      )}
 
-      {/* Keyboard hints */}
+      {/* Keyboard hints - hidden in fullscreen */}
+      {!isFullscreen && (
       <div 
         className="px-6 py-3 flex items-center justify-center gap-8 text-xs"
         style={{ 
@@ -873,6 +904,7 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
           Next
         </span>
       </div>
+      )}
     </div>
   );
 }
