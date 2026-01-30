@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Newsreader } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
   subsets: ["latin"],
+  display: "swap",
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
-  title: "Markdown Presentations",
-  description: "Turn your markdown files into beautiful presentations",
+  title: "Presentations",
+  description: "Transform markdown into beautiful presentations",
 };
 
 export default function RootLayout({
@@ -25,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${bricolage.variable} ${newsreader.variable} antialiased`}
       >
         {children}
       </body>

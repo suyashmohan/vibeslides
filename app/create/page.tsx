@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Play, Edit3, BookOpen, Lightbulb, Code, Sparkles, Presentation } from 'lucide-react';
+import { ArrowLeft, Play, BookOpen, Lightbulb, Code, Layout } from 'lucide-react';
 
 interface Template {
   id: string;
@@ -16,9 +16,9 @@ interface Template {
 const templates: Template[] = [
   {
     id: 'simple',
-    name: 'Simple Presentation',
-    description: 'A clean, simple template to get started',
-    icon: <BookOpen className="w-5 h-5" />,
+    name: 'Simple',
+    description: 'Clean and minimal structure',
+    icon: <BookOpen className="w-4 h-4" />,
     content: `# Welcome
 
 This is your first slide.
@@ -31,18 +31,18 @@ Add your content here.
 
 ---
 
-## Thank You!
+## Thank You
 
 Questions?`,
   },
   {
     id: 'code',
-    name: 'Code Tutorial',
-    description: 'Perfect for teaching programming concepts',
-    icon: <Code className="w-5 h-5" />,
+    name: 'Tutorial',
+    description: 'Perfect for teaching code',
+    icon: <Code className="w-4 h-4" />,
     content: `# Python Basics
 
-Let's learn Python!
+Let's learn Python together.
 
 ---
 
@@ -73,10 +73,10 @@ Try it yourself!`,
   },
   {
     id: 'pitch',
-    name: 'Business Pitch',
-    description: 'For presenting business ideas or products',
-    icon: <Lightbulb className="w-5 h-5" />,
-    content: `# Our Amazing Product
+    name: 'Pitch',
+    description: 'For business ideas',
+    icon: <Lightbulb className="w-4 h-4" />,
+    content: `# Our Vision
 
 The future is here.
 
@@ -98,7 +98,7 @@ How we fix it:
 
 ---
 
-## Market Opportunity
+## Market
 
 - Market size: $X billion
 - Growth rate: X% annually
@@ -120,11 +120,9 @@ export default function CreatePresentation() {
   const handlePresentMarkdown = () => {
     if (!markdownContent.trim()) return;
     
-    // Store markdown in sessionStorage
     sessionStorage.setItem('liveMarkdownContent', markdownContent);
     sessionStorage.setItem('liveMarkdownTitle', 'Live Presentation');
     
-    // Navigate to live presentation
     router.push('/presentation/live');
   };
 
@@ -137,101 +135,121 @@ export default function CreatePresentation() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <main className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+    <div className="min-h-screen bg-[var(--color-rice)]">
+      <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-12">
           <Link 
             href="/"
-            className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-[var(--color-clay)] hover:text-[var(--color-ink)] transition-colors mb-6 text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Presentations</span>
           </Link>
           
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-2">
-            Create Live Presentation
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Paste or type your markdown below. Use --- to separate slides.
-          </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <p className="text-[var(--color-clay)] text-xs tracking-[0.2em] uppercase mb-2">
+                Create
+              </p>
+              <h1 className="text-3xl md:text-4xl text-[var(--color-ink)]">
+                New Presentation
+              </h1>
+            </div>
+            <p className="text-[var(--color-charcoal)]/60 text-sm max-w-md">
+              Use <code className="bg-[var(--color-sand)]/50 px-1.5 py-0.5 rounded text-[var(--color-ink)]">---</code> to separate slides
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Templates */}
-          <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 sticky top-4">
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-yellow-500" />
-                Quick Start Templates
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Left Column - Templates & Tips */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Templates */}
+            <div className="bg-[var(--color-washi)] rounded-lg border border-[var(--color-sand)] p-5">
+              <h3 className="text-[var(--color-ink)] text-sm font-medium mb-4 flex items-center gap-2">
+                <Layout className="w-4 h-4 text-[var(--color-sage)]" />
+                Templates
               </h3>
               
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {templates.map((template) => (
                   <button
                     key={template.id}
                     onClick={() => handleLoadTemplate(template.id)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
+                    className={`w-full flex items-center gap-3 p-3 rounded-md text-left transition-all duration-300 ${
                       selectedTemplate === template.id
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700'
+                        ? 'bg-[var(--color-sage)]/15 border-[var(--color-sage)]/30'
+                        : 'hover:bg-[var(--color-sand)]/50 border border-transparent'
                     }`}
                   >
-                    <div className={`${selectedTemplate === template.id ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                    <div className={`${selectedTemplate === template.id ? 'text-[var(--color-sage)]' : 'text-[var(--color-clay)]'}`}>
                       {template.icon}
                     </div>
                     <div>
-                      <p className={`font-medium text-sm ${selectedTemplate === template.id ? 'text-blue-700 dark:text-blue-300' : 'text-slate-900 dark:text-white'}`}>
+                      <p className={`text-sm ${selectedTemplate === template.id ? 'text-[var(--color-sage)] font-medium' : 'text-[var(--color-ink)]'}`}>
                         {template.name}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-[var(--color-stone)]">
                         {template.description}
                       </p>
                     </div>
                   </button>
                 ))}
               </div>
+            </div>
 
-              <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
-                <div className="flex items-start gap-2 text-sm">
-                  <Presentation className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-slate-600 dark:text-slate-400">
-                    Use <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">---</code> to separate slides
-                  </p>
+            {/* Tips */}
+            <div className="bg-[var(--color-washi)] rounded-lg border border-[var(--color-sand)] p-5">
+              <h3 className="text-[var(--color-ink)] text-sm font-medium mb-4">
+                Markdown Tips
+              </h3>
+              <div className="space-y-3 text-xs text-[var(--color-clay)]">
+                <div className="flex items-start gap-2">
+                  <span className="text-[var(--color-sage)]">#</span>
+                  <span>Heading 1 for titles</span>
                 </div>
-                <div className="flex items-start gap-2 text-sm">
-                  <Code className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-slate-600 dark:text-slate-400">
-                    Use <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded text-xs">```python</code> for code highlighting
-                  </p>
+                <div className="flex items-start gap-2">
+                  <span className="text-[var(--color-sage)]">##</span>
+                  <span>Heading 2 for sections</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[var(--color-sage)]">-</span>
+                  <span>Bullet points</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[var(--color-sage)]">```</span>
+                  <span>Code blocks</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right Column - Editor */}
-          <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-              <div className="border-b border-slate-200 dark:border-slate-700 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <Edit3 className="w-4 h-4" />
+          <div className="lg:col-span-3">
+            <div className="bg-[var(--color-washi)] rounded-lg border border-[var(--color-sand)] overflow-hidden shadow-sm">
+              {/* Editor Header */}
+              <div className="border-b border-[var(--color-sand)] px-4 py-3 bg-[var(--color-rice)]/50 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-[var(--color-clay)]">
+                  <span className="w-2 h-2 rounded-full bg-[var(--color-sage)]" />
                   <span>Markdown Editor</span>
                 </div>
-                <div className="text-xs text-slate-400">
-                  {markdownContent.length} characters
+                <div className="text-xs text-[var(--color-stone)]">
+                  {markdownContent.length.toLocaleString()} characters
                 </div>
               </div>
               
+              {/* Textarea */}
               <textarea
                 value={markdownContent}
                 onChange={(e) => setMarkdownContent(e.target.value)}
-                placeholder={`# My Presentation
+                placeholder={`# Your Title
 
-Welcome to my presentation!
+Welcome to your presentation.
 
 ---
 
-## First Topic
+## First Section
 
 Your content here...
 
@@ -240,38 +258,50 @@ Your content here...
 ## Code Example
 
 \`\`\`python
-print("Hello World")
+print("Hello, World!")
 \`\`\`
 
 ---
 
-## Thank You!
+## Thank You
 
-Questions?`}
-                className="w-full h-[60vh] p-4 font-mono text-sm bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 
-                         resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+Questions welcome`}
+                className="w-full h-[60vh] p-5 font-mono text-sm bg-[var(--color-rice)] text-[var(--color-charcoal)] 
+                         resize-none focus:outline-none focus:ring-0 leading-relaxed"
                 spellCheck={false}
+                style={{ fontFamily: 'var(--font-bricolage), monospace' }}
               />
               
-              <div className="border-t border-slate-200 dark:border-slate-700 px-4 py-4 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between">
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  Press Start Presentation when ready
+              {/* Editor Footer */}
+              <div className="border-t border-[var(--color-sand)] px-4 py-4 bg-[var(--color-rice)]/50 flex items-center justify-between">
+                <div className="text-xs text-[var(--color-stone)]">
+                  Press Start when ready
                 </div>
                 <button
                   onClick={handlePresentMarkdown}
                   disabled={!markdownContent.trim()}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 
-                           disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed
-                           text-white rounded-lg font-medium transition-colors shadow-sm"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-ink)] hover:bg-[var(--color-charcoal)] 
+                           disabled:bg-[var(--color-sand)] disabled:text-[var(--color-clay)] disabled:cursor-not-allowed
+                           text-[var(--color-rice)] rounded-md text-sm font-medium transition-all duration-300
+                           disabled:hover:transform-none hover:-translate-y-0.5"
                 >
                   <Play className="w-4 h-4" />
                   <span>Start Presentation</span>
                 </button>
               </div>
             </div>
+
+            {/* Empty State Hint */}
+            {!markdownContent.trim() && (
+              <div className="mt-4 text-center">
+                <p className="text-[var(--color-stone)] text-sm">
+                  Select a template above or start typing to begin
+                </p>
+              </div>
+            )}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

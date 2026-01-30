@@ -12,7 +12,7 @@ import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javasc
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { ChevronLeft, ChevronRight, X, Maximize2, Minimize2, Settings, Play, Layers, Zap, Minus, Type, Box, ArrowUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Maximize2, Minimize2, Settings, Play, Layers, Zap, Minus, Box, ArrowUp } from 'lucide-react';
 
 SyntaxHighlighter.registerLanguage('python', python);
 SyntaxHighlighter.registerLanguage('javascript', javascript);
@@ -55,7 +55,7 @@ const getSlideAnimationVariants = (animationType: SlideAnimationType): Variants 
         enter: (direction: number) => ({
           x: direction > 0 ? 1000 : -1000,
           opacity: 0,
-          scale: 0.8,
+          scale: 0.95,
         }),
         center: {
           zIndex: 1,
@@ -67,7 +67,7 @@ const getSlideAnimationVariants = (animationType: SlideAnimationType): Variants 
           zIndex: 0,
           x: direction < 0 ? 1000 : -1000,
           opacity: 0,
-          scale: 0.8,
+          scale: 0.95,
         }),
       };
     case 'fade':
@@ -112,7 +112,7 @@ const getSlideAnimationVariants = (animationType: SlideAnimationType): Variants 
         enter: (direction: number) => ({
           x: direction > 0 ? 1000 : -1000,
           opacity: 0,
-          scale: 0.8,
+          scale: 0.95,
         }),
         center: {
           zIndex: 1,
@@ -124,7 +124,7 @@ const getSlideAnimationVariants = (animationType: SlideAnimationType): Variants 
           zIndex: 0,
           x: direction < 0 ? 1000 : -1000,
           opacity: 0,
-          scale: 0.8,
+          scale: 0.95,
         }),
       };
   }
@@ -134,14 +134,14 @@ const getElementAnimationVariants = (animationType: ElementAnimationType): Varia
   switch (animationType) {
     case 'stagger':
       return {
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 16 },
         visible: (i: number) => ({
           opacity: 1,
           y: 0,
           transition: {
             delay: i * 0.1,
             duration: 0.4,
-            ease: [0.25, 0.1, 0.25, 1],
+            ease: [0.22, 1, 0.36, 1],
           },
         }),
       };
@@ -158,14 +158,14 @@ const getElementAnimationVariants = (animationType: ElementAnimationType): Varia
       };
     case 'slide-up':
       return {
-        hidden: { opacity: 0, y: 30 },
+        hidden: { opacity: 0, y: 24 },
         visible: (i: number) => ({
           opacity: 1,
           y: 0,
           transition: {
             delay: i * 0.12,
             duration: 0.4,
-            ease: [0.25, 0.1, 0.25, 1],
+            ease: [0.22, 1, 0.36, 1],
           },
         }),
       };
@@ -176,7 +176,7 @@ const getElementAnimationVariants = (animationType: ElementAnimationType): Varia
       };
     default:
       return {
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 16 },
         visible: (i: number) => ({
           opacity: 1,
           y: 0,
@@ -193,7 +193,7 @@ const getSlideTransitionConfig = (animationType: SlideAnimationType) => {
   switch (animationType) {
     case 'slide':
       return {
-        x: { type: "spring", stiffness: 300, damping: 30 },
+        x: { type: "spring" as const, stiffness: 300, damping: 30 },
         opacity: { duration: 0.2 },
         scale: { duration: 0.2 },
       };
@@ -203,14 +203,14 @@ const getSlideTransitionConfig = (animationType: SlideAnimationType) => {
       };
     case 'zoom':
       return {
-        scale: { type: "spring", stiffness: 300, damping: 25 },
+        scale: { type: "spring" as const, stiffness: 300, damping: 25 },
         opacity: { duration: 0.2 },
       };
     case 'none':
       return {};
     default:
       return {
-        x: { type: "spring", stiffness: 300, damping: 30 },
+        x: { type: "spring" as const, stiffness: 300, damping: 30 },
         opacity: { duration: 0.2 },
         scale: { duration: 0.2 },
       };
@@ -220,6 +220,7 @@ const getSlideTransitionConfig = (animationType: SlideAnimationType) => {
 interface AnimatedElementProps {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
   index: number;
   elementAnimationType: ElementAnimationType;
 }
@@ -227,16 +228,18 @@ interface AnimatedElementProps {
 const AnimatedElement: React.FC<AnimatedElementProps> = ({ 
   children, 
   className = '', 
+  style,
   index,
   elementAnimationType 
 }) => {
   if (elementAnimationType === 'none') {
-    return <div className={className}>{children}</div>;
+    return <div className={className} style={style}>{children}</div>;
   }
 
   return (
     <motion.div
       className={className}
+      style={style}
       initial="hidden"
       animate="visible"
       custom={index}
@@ -409,8 +412,12 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
 
   if (!presentation) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-ink)]">
+        <div className="inline-flex items-center gap-3 text-[var(--color-stone)]">
+          <div className="w-2 h-2 bg-[var(--color-stone)] rounded-full animate-pulse" />
+          <div className="w-2 h-2 bg-[var(--color-stone)] rounded-full animate-pulse" style={{ animationDelay: '0.15s' }} />
+          <div className="w-2 h-2 bg-[var(--color-stone)] rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
+        </div>
       </div>
     );
   }
@@ -423,39 +430,60 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
   const getNextElementIndex = () => elementCounter++;
 
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} bg-slate-900 flex flex-col`}>
+    <div 
+      className={`${isFullscreen ? 'fixed inset-0 z-50' : 'min-h-screen'} flex flex-col`}
+      style={{ backgroundColor: 'var(--color-ink)' }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 md:px-6 py-4 bg-slate-800/50 border-b border-slate-700">
+      <div 
+        className="flex items-center justify-between px-4 md:px-6 py-4 border-b relative"
+        style={{ 
+          backgroundColor: 'rgba(44, 42, 38, 0.8)',
+          borderColor: 'rgba(196, 184, 168, 0.2)',
+          backdropFilter: 'blur(12px)',
+          zIndex: 100
+        }}
+      >
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/')}
-            className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+            className="p-2 rounded-lg transition-colors text-[var(--color-stone)] hover:text-[var(--color-rice)] hover:bg-[var(--color-charcoal)]"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-3">
-            <h1 className="text-white font-semibold text-sm md:text-base">{presentation.title}</h1>
+            <h1 className="text-[var(--color-rice)] font-normal text-sm md:text-base" style={{ fontFamily: 'var(--font-serif)' }}>
+              {presentation.title}
+            </h1>
             {slug === 'live' && (
-              <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-medium rounded border border-red-500/30">
+              <span 
+                className="px-2 py-0.5 text-xs font-medium rounded"
+                style={{ 
+                  backgroundColor: 'rgba(184, 145, 125, 0.2)',
+                  color: 'var(--color-terracotta)',
+                  border: '1px solid rgba(184, 145, 125, 0.3)'
+                }}
+              >
                 LIVE
               </span>
             )}
             {presentation.author && slug !== 'live' && (
-              <p className="text-slate-400 text-xs md:text-sm">{presentation.author}</p>
+              <p className="text-[var(--color-clay)] text-xs md:text-sm">{presentation.author}</p>
             )}
           </div>
         </div>
         
         <div className="flex items-center gap-2 md:gap-4">
           {/* Settings/Animation Selector */}
-          <div className="relative settings-menu-container">
+          <div className="relative settings-menu-container" style={{ zIndex: 110 }}>
             <button
               onClick={() => setShowSettingsMenu(!showSettingsMenu)}
               className={`p-2 rounded-lg transition-colors flex items-center gap-2 text-xs md:text-sm ${
                 showSettingsMenu 
-                  ? 'bg-blue-600 text-white' 
-                  : 'hover:bg-slate-700 text-slate-400 hover:text-white'
+                  ? 'text-[var(--color-rice)]' 
+                  : 'text-[var(--color-stone)] hover:text-[var(--color-rice)] hover:bg-[var(--color-charcoal)]'
               }`}
+              style={showSettingsMenu ? { backgroundColor: 'var(--color-sage)' } : {}}
               title="Animation settings"
             >
               <Settings className="w-4 h-4" />
@@ -463,25 +491,49 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
             </button>
             
             {showSettingsMenu && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden z-50">
+              <div 
+                className="absolute right-0 top-full mt-2 w-56 rounded-lg shadow-xl overflow-hidden"
+                style={{ 
+                  backgroundColor: 'var(--color-charcoal)',
+                  border: '1px solid rgba(196, 184, 168, 0.2)',
+                  zIndex: 120
+                }}
+              >
                 {/* Slide Animation Section */}
-                <div className="px-3 py-2 text-xs font-semibold text-slate-400 border-b border-slate-700 bg-slate-800/50">
+                <div 
+                  className="px-3 py-2 text-xs font-medium border-b"
+                  style={{ 
+                    backgroundColor: 'rgba(247, 245, 240, 0.05)',
+                    color: 'var(--color-stone)',
+                    borderColor: 'rgba(196, 184, 168, 0.1)'
+                  }}
+                >
                   Slide Transition
                 </div>
                 {slideAnimationOptions.map((option) => (
                   <button
                     key={option.type}
                     onClick={() => handleSlideAnimationChange(option.type)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
-                      slideAnimationType === option.type
-                        ? 'bg-blue-600/20 text-blue-400'
-                        : 'text-slate-300 hover:bg-slate-700'
-                    }`}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors"
+                    style={{
+                      color: slideAnimationType === option.type ? 'var(--color-sage)' : 'var(--color-clay)',
+                      backgroundColor: slideAnimationType === option.type ? 'rgba(122, 139, 110, 0.15)' : 'transparent',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (slideAnimationType !== option.type) {
+                        e.currentTarget.style.backgroundColor = 'rgba(247, 245, 240, 0.05)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (slideAnimationType !== option.type) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
                   >
                     {option.icon}
                     <span>{option.label}</span>
                     {slideAnimationType === option.type && (
-                      <svg className="w-4 h-4 ml-auto text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'var(--color-sage)' }}>
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -489,26 +541,43 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                 ))}
 
                 {/* Divider */}
-                <div className="border-t border-slate-700 my-1"></div>
+                <div style={{ borderTop: '1px solid rgba(196, 184, 168, 0.1)', margin: '4px 0' }}></div>
 
                 {/* Element Animation Section */}
-                <div className="px-3 py-2 text-xs font-semibold text-slate-400 border-b border-slate-700 bg-slate-800/50">
+                <div 
+                  className="px-3 py-2 text-xs font-medium border-b"
+                  style={{ 
+                    backgroundColor: 'rgba(247, 245, 240, 0.05)',
+                    color: 'var(--color-stone)',
+                    borderColor: 'rgba(196, 184, 168, 0.1)'
+                  }}
+                >
                   Element Animations
                 </div>
                 {elementAnimationOptions.map((option) => (
                   <button
                     key={option.type}
                     onClick={() => handleElementAnimationChange(option.type)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors ${
-                      elementAnimationType === option.type
-                        ? 'bg-blue-600/20 text-blue-400'
-                        : 'text-slate-300 hover:bg-slate-700'
-                    }`}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors"
+                    style={{
+                      color: elementAnimationType === option.type ? 'var(--color-sage)' : 'var(--color-clay)',
+                      backgroundColor: elementAnimationType === option.type ? 'rgba(122, 139, 110, 0.15)' : 'transparent',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (elementAnimationType !== option.type) {
+                        e.currentTarget.style.backgroundColor = 'rgba(247, 245, 240, 0.05)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (elementAnimationType !== option.type) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
                   >
                     {option.icon}
                     <span>{option.label}</span>
                     {elementAnimationType === option.type && (
-                      <svg className="w-4 h-4 ml-auto text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-4 h-4 ml-auto" fill="currentColor" viewBox="0 0 20 20" style={{ color: 'var(--color-sage)' }}>
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}
@@ -518,12 +587,12 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
             )}
           </div>
 
-          <span className="text-slate-400 text-xs md:text-sm">
+          <span className="text-xs md:text-sm" style={{ color: 'var(--color-clay)' }}>
             {currentSlide + 1} / {presentation.slides.length}
           </span>
           <button
             onClick={toggleFullscreen}
-            className="p-2 hover:bg-slate-700 rounded-lg transition-colors text-slate-400 hover:text-white"
+            className="p-2 rounded-lg transition-colors text-[var(--color-stone)] hover:text-[var(--color-rice)] hover:bg-[var(--color-charcoal)]"
           >
             {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
           </button>
@@ -531,7 +600,7 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Slide Container */}
-      <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-hidden relative">
+      <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-hidden relative z-0">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentSlide}
@@ -541,14 +610,18 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
             animate="center"
             exit="exit"
             transition={slideTransitionConfig}
-            className="w-full max-w-6xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden"
+            className="w-full max-w-6xl overflow-hidden rounded-lg shadow-2xl"
+            style={{ 
+              backgroundColor: 'var(--color-rice)',
+              boxShadow: '0 25px 80px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(196, 184, 168, 0.1)'
+            }}
             onAnimationComplete={() => {
               // Reset element counter when slide animation completes
               elementCounter = 0;
             }}
           >
-            <div className="aspect-video p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
-              <div className="prose prose-lg dark:prose-invert max-w-none">
+            <div className="aspect-video p-8 md:p-12 lg:p-16 flex flex-col justify-center overflow-y-auto">
+              <div className="prose prose-lg max-w-none">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw]}
@@ -557,7 +630,8 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       <AnimatedElement 
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
-                        className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6"
+                        className="text-3xl md:text-4xl lg:text-5xl font-normal mb-8"
+                        style={{ color: 'var(--color-ink)', fontFamily: 'var(--font-serif)' }}
                       >
                         {children}
                       </AnimatedElement>
@@ -566,7 +640,8 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       <AnimatedElement 
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
-                        className="text-2xl md:text-3xl lg:text-4xl font-semibold text-slate-800 dark:text-slate-100 mb-4"
+                        className="text-2xl md:text-3xl lg:text-4xl font-normal mb-6"
+                        style={{ color: 'var(--color-charcoal)', fontFamily: 'var(--font-serif)' }}
                       >
                         {children}
                       </AnimatedElement>
@@ -575,7 +650,8 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       <AnimatedElement 
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
-                        className="text-xl md:text-2xl lg:text-3xl font-semibold text-slate-700 dark:text-slate-200 mb-3"
+                        className="text-xl md:text-2xl lg:text-3xl font-normal mb-4"
+                        style={{ color: 'var(--color-charcoal)', fontFamily: 'var(--font-serif)' }}
                       >
                         {children}
                       </AnimatedElement>
@@ -584,7 +660,8 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       <AnimatedElement 
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
-                        className="text-base md:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-4"
+                        className="text-base md:text-lg lg:text-xl leading-relaxed mb-6"
+                        style={{ color: 'var(--color-charcoal)', lineHeight: '1.75' }}
                       >
                         {children}
                       </AnimatedElement>
@@ -593,7 +670,8 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       <AnimatedElement 
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
-                        className="space-y-2 mb-4 text-base md:text-lg text-slate-600 dark:text-slate-300"
+                        className="space-y-3 mb-6 text-base md:text-lg"
+                        style={{ color: 'var(--color-charcoal)' }}
                       >
                         {children}
                       </AnimatedElement>
@@ -602,14 +680,15 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       <AnimatedElement 
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
-                        className="space-y-2 mb-4 text-base md:text-lg text-slate-600 dark:text-slate-300 list-decimal list-inside"
+                        className="space-y-3 mb-6 text-base md:text-lg list-decimal list-inside"
+                        style={{ color: 'var(--color-charcoal)' }}
                       >
                         {children}
                       </AnimatedElement>
                     ),
                     li: ({ children }) => (
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500 mt-1.5 flex-shrink-0">•</span>
+                      <li className="flex items-start gap-3">
+                        <span style={{ color: 'var(--color-sage)' }} className="mt-1.5 flex-shrink-0">•</span>
                         <span>{children}</span>
                       </li>
                     ),
@@ -627,9 +706,10 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                               language={language}
                               style={oneDark}
                               customStyle={{
-                                margin: '1rem 0',
+                                margin: '1.5rem 0',
                                 borderRadius: '0.5rem',
                                 fontSize: '0.875rem',
+                                backgroundColor: 'var(--color-ink)',
                               }}
                               showLineNumbers={true}
                               wrapLines={true}
@@ -641,7 +721,13 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       }
                       
                       return (
-                        <code className="bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400">
+                        <code 
+                          className="px-1.5 py-0.5 rounded text-sm font-mono"
+                          style={{ 
+                            backgroundColor: 'var(--color-sand)',
+                            color: 'var(--color-ink)'
+                          }}
+                        >
                           {children}
                         </code>
                       );
@@ -651,7 +737,11 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                       <AnimatedElement 
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
-                        className="border-l-4 border-blue-500 pl-4 italic text-slate-600 dark:text-slate-400 mb-4"
+                        className="pl-6 italic mb-6"
+                        style={{ 
+                          borderLeft: '3px solid var(--color-sage)',
+                          color: 'var(--color-clay)'
+                        }}
                       >
                         {children}
                       </AnimatedElement>
@@ -661,25 +751,40 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                         index={getNextElementIndex()} 
                         elementAnimationType={elementAnimationType}
                       >
-                        <div className="overflow-x-auto mb-4">
-                          <table className="w-full border-collapse border border-slate-300 dark:border-slate-600">
+                        <div className="overflow-x-auto mb-6">
+                          <table 
+                            className="w-full border-collapse"
+                            style={{ border: '1px solid var(--color-sand)' }}
+                          >
                             {children}
                           </table>
                         </div>
                       </AnimatedElement>
                     ),
                     thead: ({ children }) => (
-                      <thead className="bg-slate-100 dark:bg-slate-700">
+                      <thead style={{ backgroundColor: 'var(--color-washi)' }}>
                         {children}
                       </thead>
                     ),
                     th: ({ children }) => (
-                      <th className="border border-slate-300 dark:border-slate-600 px-4 py-2 text-left font-semibold text-slate-900 dark:text-white">
+                      <th 
+                        className="px-4 py-3 text-left font-medium"
+                        style={{ 
+                          border: '1px solid var(--color-sand)',
+                          color: 'var(--color-ink)'
+                        }}
+                      >
                         {children}
                       </th>
                     ),
                     td: ({ children }) => (
-                      <td className="border border-slate-300 dark:border-slate-600 px-4 py-2 text-slate-700 dark:text-slate-300">
+                      <td 
+                        className="px-4 py-3"
+                        style={{ 
+                          border: '1px solid var(--color-sand)',
+                          color: 'var(--color-charcoal)'
+                        }}
+                      >
                         {children}
                       </td>
                     ),
@@ -696,8 +801,19 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
         <button
           onClick={prevSlide}
           disabled={currentSlide === 0}
-          className="absolute left-4 p-3 bg-slate-800/80 hover:bg-slate-700 text-white rounded-full 
-                   transition-all disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm z-10"
+          className="absolute left-4 md:left-8 p-3 rounded-full backdrop-blur-md z-10 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed hover:scale-105"
+          style={{ 
+            backgroundColor: 'rgba(44, 42, 38, 0.6)',
+            color: 'var(--color-rice)'
+          }}
+          onMouseEnter={(e) => {
+            if (currentSlide !== 0) {
+              e.currentTarget.style.backgroundColor = 'rgba(44, 42, 38, 0.8)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(44, 42, 38, 0.6)';
+          }}
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -705,17 +821,28 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
         <button
           onClick={nextSlide}
           disabled={currentSlide === presentation.slides.length - 1}
-          className="absolute right-4 p-3 bg-slate-800/80 hover:bg-slate-700 text-white rounded-full 
-                   transition-all disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm z-10"
+          className="absolute right-4 md:right-8 p-3 rounded-full backdrop-blur-md z-10 transition-all duration-300 disabled:opacity-20 disabled:cursor-not-allowed hover:scale-105"
+          style={{ 
+            backgroundColor: 'rgba(44, 42, 38, 0.6)',
+            color: 'var(--color-rice)'
+          }}
+          onMouseEnter={(e) => {
+            if (currentSlide !== presentation.slides.length - 1) {
+              e.currentTarget.style.backgroundColor = 'rgba(44, 42, 38, 0.8)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(44, 42, 38, 0.6)';
+          }}
         >
           <ChevronRight className="w-6 h-6" />
         </button>
       </div>
 
       {/* Progress Bar */}
-      <div className="h-1 bg-slate-800">
+      <div style={{ height: '3px', backgroundColor: 'rgba(196, 184, 168, 0.2)' }}>
         <motion.div
-          className="h-full bg-blue-500"
+          style={{ height: '100%', backgroundColor: 'var(--color-sage)' }}
           initial={{ width: 0 }}
           animate={{ 
             width: `${((currentSlide + 1) / presentation.slides.length) * 100}%` 
@@ -725,18 +852,24 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
       </div>
 
       {/* Keyboard hints */}
-      <div className="px-6 py-2 bg-slate-800/50 flex items-center justify-center gap-6 text-xs text-slate-500">
-        <span className="flex items-center gap-1">
-          <kbd className="px-2 py-1 bg-slate-700 rounded">←</kbd>
-          <kbd className="px-2 py-1 bg-slate-700 rounded">→</kbd>
+      <div 
+        className="px-6 py-3 flex items-center justify-center gap-8 text-xs"
+        style={{ 
+          backgroundColor: 'rgba(44, 42, 38, 0.5)',
+          color: 'var(--color-clay)'
+        }}
+      >
+        <span className="flex items-center gap-2">
+          <kbd className="px-2 py-1 rounded" style={{ backgroundColor: 'var(--color-charcoal)' }}>←</kbd>
+          <kbd className="px-2 py-1 rounded" style={{ backgroundColor: 'var(--color-charcoal)' }}>→</kbd>
           Navigate
         </span>
-        <span className="flex items-center gap-1">
-          <kbd className="px-2 py-1 bg-slate-700 rounded">ESC</kbd>
+        <span className="flex items-center gap-2">
+          <kbd className="px-2 py-1 rounded" style={{ backgroundColor: 'var(--color-charcoal)' }}>ESC</kbd>
           Exit
         </span>
-        <span className="flex items-center gap-1">
-          <kbd className="px-2 py-1 bg-slate-700 rounded">Space</kbd>
+        <span className="flex items-center gap-2">
+          <kbd className="px-2 py-1 rounded" style={{ backgroundColor: 'var(--color-charcoal)' }}>Space</kbd>
           Next
         </span>
       </div>
