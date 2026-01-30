@@ -1,7 +1,8 @@
 ---
-title: "Coding Concepts for Beginners"
-author: "Learn to Code"
-date: "2024-01-30"
+title: Coding Concepts for Beginners
+author: Learn to Code
+date: 2024-01-30
+updatedAt: 2026-01-30
 ---
 
 # Coding Concepts for Beginners

@@ -12,7 +12,7 @@ import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javasc
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { ChevronLeft, ChevronRight, X, Maximize2, Minimize2, Settings, Play, Layers, Zap, Minus, Box, ArrowUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Maximize2, Minimize2, Settings, Play, Layers, Zap, Minus, Box, ArrowUp, Edit } from 'lucide-react';
 
 SyntaxHighlighter.registerLanguage('python', python);
 SyntaxHighlighter.registerLanguage('javascript', javascript);
@@ -609,6 +609,18 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
               </div>
             )}
           </div>
+
+          {/* Edit Button - only for file-based presentations */}
+          {slug !== 'live' && (
+            <button
+              onClick={() => router.push(`/create?edit=${slug}`)}
+              className="p-2 rounded-lg transition-colors flex items-center gap-2 text-xs md:text-sm text-[var(--color-stone)] hover:text-[var(--color-rice)] hover:bg-[var(--color-charcoal)]"
+              title="Edit presentation"
+            >
+              <Edit className="w-4 h-4" />
+              <span className="hidden md:inline">Edit</span>
+            </button>
+          )}
 
           <span className="text-xs md:text-sm" style={{ color: 'var(--color-clay)' }}>
             {currentSlide + 1} / {presentation.slides.length}

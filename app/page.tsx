@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FileText, Calendar, User, Plus } from 'lucide-react';
+import { FileText, Calendar, User, Plus, Edit, Play } from 'lucide-react';
 
 interface Presentation {
   slug: string;
@@ -123,52 +123,69 @@ export default function Home() {
             {/* Local Presentations Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {presentations.map((presentation, index) => (
-                <Link
+                <div
                   key={presentation.slug}
-                  href={`/presentation/${presentation.slug}`}
-                  className="group block bg-[var(--color-washi)] rounded-lg p-6 japandi-card border border-[var(--color-sand)]"
+                  className="group bg-[var(--color-washi)] rounded-lg p-6 japandi-card border border-[var(--color-sand)] flex flex-col"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-[var(--color-sand)]/50 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--color-sage)]/20 transition-colors duration-300">
-                      <FileText className="w-5 h-5 text-[var(--color-clay)] group-hover:text-[var(--color-sage)] transition-colors duration-300" />
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-sage)] transition-colors duration-300 font-normal">
-                        {presentation.title}
-                      </h3>
+                  <Link
+                    href={`/presentation/${presentation.slug}`}
+                    className="flex-1 block"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-[var(--color-sand)]/50 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--color-sage)]/20 transition-colors duration-300">
+                        <FileText className="w-5 h-5 text-[var(--color-clay)] group-hover:text-[var(--color-sage)] transition-colors duration-300" />
+                      </div>
                       
-                      {presentation.excerpt && (
-                        <p className="text-[var(--color-charcoal)]/60 text-sm leading-relaxed mb-4 line-clamp-2">
-                          {presentation.excerpt}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center gap-4 text-xs text-[var(--color-stone)]">
-                        {presentation.author && (
-                          <div className="flex items-center gap-1.5">
-                            <User className="w-3 h-3" />
-                            <span>{presentation.author}</span>
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-sage)] transition-colors duration-300 font-normal">
+                          {presentation.title}
+                        </h3>
+                        
+                        {presentation.excerpt && (
+                          <p className="text-[var(--color-charcoal)]/60 text-sm leading-relaxed mb-4 line-clamp-2">
+                            {presentation.excerpt}
+                          </p>
                         )}
-                        {presentation.date && (
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="w-3 h-3" />
-                            <span>{new Date(presentation.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                          </div>
-                        )}
+                        
+                        <div className="flex items-center gap-4 text-xs text-[var(--color-stone)]">
+                          {presentation.author && (
+                            <div className="flex items-center gap-1.5">
+                              <User className="w-3 h-3" />
+                              <span>{presentation.author}</span>
+                            </div>
+                          )}
+                          {presentation.date && (
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3 h-3" />
+                              <span>{new Date(presentation.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                   
                   <div className="mt-4 pt-4 border-t border-[var(--color-sand)] flex items-center justify-between">
-                    <span className="text-xs text-[var(--color-clay)] tracking-wide">View Presentation</span>
-                    <svg className="w-4 h-4 text-[var(--color-clay)] group-hover:text-[var(--color-sage)] group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-                    </svg>
+                    <Link
+                      href={`/presentation/${presentation.slug}`}
+                      className="flex items-center gap-2 text-xs text-[var(--color-clay)] hover:text-[var(--color-sage)] transition-colors"
+                    >
+                      <Play className="w-3 h-3" />
+                      <span className="tracking-wide">View</span>
+                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/create?edit=${presentation.slug}`}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--color-clay)] hover:text-[var(--color-ink)] hover:bg-[var(--color-sand)]/50 rounded-md transition-all"
+                        title="Edit presentation"
+                      >
+                        <Edit className="w-3 h-3" />
+                        <span>Edit</span>
+                      </Link>
+                    </div>
                   </div>
-                </Link>
+                </div>
               ))}
 
               {/* Empty State */}
