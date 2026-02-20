@@ -234,6 +234,25 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+### AI SDK Setup
+
+To use the AI chat features for presentation creation and editing:
+
+1. **Add OpenRouter API key to `.env`:**
+   ```
+   AI_GATEWAY_API_KEY=your_openrouter_api_key_here
+   ```
+
+2. **Update the AI model (optional):**
+   The chat functionality uses the Google Gemini 3 Flash Preview model through OpenRouter. To use a different model, edit `app/api/chat/route.ts`:
+   
+   ```typescript
+   // Line 49 in app/api/chat/route.ts
+   model: openrouter('google/gemini-3-flash-preview'),
+   ```
+   
+   Replace with any model supported by OpenRouter (e.g., `anthropic/claude-3-opus-20240229`, `openai/gpt-4o`, etc.)
+
 ### Adding Presentations
 
 1. Create a `.md` file in `/presentations` folder
@@ -350,11 +369,11 @@ npm run build
 
 ## License
 
-[Add your license here]
+This project is open-source software. The author assumes no liability for any damages, losses, or issues arising from the use of this software. Use at your own risk.
 
 ## Support
 
-[Add support information here]
+This project was created as a fun experiment and is provided as-is with no support, warranties, or promises. The author is not obligated to provide assistance, updates, or maintenance. Feel free to fork, modify, and use according to your own needs.
 
 ---
 
