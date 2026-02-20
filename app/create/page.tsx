@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -18,6 +18,24 @@ import {
   Minus, Eye, EyeOff, Keyboard, Undo, Redo, LayoutTemplate,
   Type, Link as LinkIcon
 } from 'lucide-react';
+import { PresentationChat } from '@/app/components/PresentationChat';
+
+// Export wrapped component as default
+export default function CreatePresentationWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-rice flex items-center justify-center">
+        <div className="inline-flex items-center gap-3 text-clay">
+          <div className="w-2 h-2 bg-clay rounded-full animate-pulse" />
+          <div className="w-2 h-2 bg-clay rounded-full animate-pulse" style={{ animationDelay: '0.15s' }} />
+          <div className="w-2 h-2 bg-clay rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
+        </div>
+      </div>
+    }>
+      <CreatePresentation />
+    </Suspense>
+  );
+}
 
 SyntaxHighlighter.registerLanguage('python', python);
 SyntaxHighlighter.registerLanguage('javascript', javascript);
@@ -137,7 +155,7 @@ interface HistoryState {
   cursorPosition: number;
 }
 
-export default function CreatePresentation() {
+function CreatePresentation() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editSlug = searchParams.get('edit');
@@ -164,12 +182,20 @@ export default function CreatePresentation() {
   const maxHistorySize = 50;
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
   
   // Refs to store current values for stable autosave interval
   const updatePresentationRef = useRef<() => void>(() => {});
   const isDirtyRef = useRef<boolean>(false);
   const isSavingRef = useRef<boolean>(false);
   const markdownContentRef = useRef<string>('');
+
+  // Sync line numbers scroll with textarea scroll
+  const handleTextareaScroll = useCallback(() => {
+    if (textareaRef.current && lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
+    }
+  }, []);
 
   const isDirty = useMemo(() => {
     return markdownContent !== savedContent;
@@ -474,39 +500,39 @@ export default function CreatePresentation() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--color-rice)] flex items-center justify-center">
-        <div className="inline-flex items-center gap-3 text-[var(--color-clay)]">
-          <div className="w-2 h-2 bg-[var(--color-clay)] rounded-full animate-pulse" />
-          <div className="w-2 h-2 bg-[var(--color-clay)] rounded-full animate-pulse" style={{ animationDelay: '0.15s' }} />
-          <div className="w-2 h-2 bg-[var(--color-clay)] rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
+      <div className="min-h-screen bg-rice flex items-center justify-center">
+        <div className="inline-flex items-center gap-3 text-clay">
+          <div className="w-2 h-2 bg-clay rounded-full animate-pulse" />
+          <div className="w-2 h-2 bg-clay rounded-full animate-pulse" style={{ animationDelay: '0.15s' }} />
+          <div className="w-2 h-2 bg-clay rounded-full animate-pulse" style={{ animationDelay: '0.3s' }} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-rice)]">
+      <div className="min-h-screen bg-rice">
       <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
         {/* Header */}
         <div className="mb-12">
-          <Link 
+          <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[var(--color-clay)] hover:text-[var(--color-ink)] transition-colors mb-6 text-sm"
+            className="inline-flex items-center gap-2 text-clay hover:text-ink transition-colors mb-6 text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Presentations</span>
           </Link>
-          
+
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <p className="text-[var(--color-clay)] text-xs tracking-[0.2em] uppercase mb-2">
+              <p className="text-clay text-xs tracking-[0.2em] uppercase mb-2">
                 {editSlug ? 'Editing' : 'Create'}
               </p>
-              <h1 className="text-3xl md:text-4xl text-[var(--color-ink)]">
+              <h1 className="text-3xl md:text-4xl text-ink">
                 {title}
               </h1>
               {editSlug && (
-                <p className="text-[var(--color-stone)] text-sm mt-1">
+                <p className="text-stone text-sm mt-1">
                   Editing: {editSlug}.md
                 </p>
               )}
@@ -514,13 +540,13 @@ export default function CreatePresentation() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setShowShortcuts(!showShortcuts)}
-                className="flex items-center gap-2 text-sm text-[var(--color-clay)] hover:text-[var(--color-ink)] transition-colors"
+                className="flex items-center gap-2 text-sm text-clay hover:text-ink transition-colors"
               >
                 <Keyboard className="w-4 h-4" />
                 <span>Shortcuts</span>
               </button>
-              <p className="text-[var(--color-charcoal)]/60 text-sm max-w-md hidden md:block">
-                Use <code className="bg-[var(--color-sand)]/50 px-1.5 py-0.5 rounded text-[var(--color-ink)]">---</code> to separate slides
+              <p className="text-charcoal/60 text-sm max-w-md hidden md:block">
+                Use <code className="bg-sand/50 px-1.5 py-0.5 rounded text-ink">---</code> to separate slides
               </p>
             </div>
           </div>
@@ -528,39 +554,39 @@ export default function CreatePresentation() {
 
         {/* Editor */}
         <div>
-          <div className="bg-[var(--color-washi)] rounded-lg border border-[var(--color-sand)] overflow-hidden shadow-sm">
+          <div className="bg-washi rounded-lg border border-sand overflow-hidden shadow-sm">
               {/* Editor Toolbar */}
               {showToolbar && (
-                <div className="border-b border-[var(--color-sand)] px-3 py-2 bg-[var(--color-rice)]/50 flex flex-wrap items-center gap-1">
+                <div className="border-b border-sand px-3 py-2 bg-rice/50 flex flex-wrap items-center gap-1">
                   {toolbarButtons.map((button, index) => (
                     button.type === 'divider' ? (
-                      <div key={index} className="w-px h-6 bg-[var(--color-sand)] mx-1" />
+                      <div key={index} className="w-px h-6 bg-sand mx-1" />
                     ) : (
                       <button
                         key={button.label}
                         onClick={button.action}
                         title={`${button.label} (${button.shortcut})`}
-                        className="p-2 rounded-md text-[var(--color-clay)] hover:text-[var(--color-ink)] hover:bg-[var(--color-sand)]/50 transition-all"
+                        className="p-2 rounded-md text-clay hover:text-ink hover:bg-sand/50 transition-all"
                       >
                         {button.icon}
                       </button>
                     )
                   ))}
-                  <div className="w-px h-6 bg-[var(--color-sand)] mx-1" />
-                  
+                  <div className="w-px h-6 bg-sand mx-1" />
+
                   {/* Templates Dropdown */}
                   <div className="relative">
                     <button
                       onClick={() => setShowTemplates(!showTemplates)}
-                      className={`p-2 rounded-md transition-all flex items-center gap-1 ${showTemplates ? 'text-[var(--color-sage)] bg-[var(--color-sage)]/10' : 'text-[var(--color-clay)] hover:text-[var(--color-ink)] hover:bg-[var(--color-sand)]/50'}`}
+                      className={`p-2 rounded-md transition-all flex items-center gap-1 ${showTemplates ? 'text-sage bg-sage/10' : 'text-clay hover:text-ink hover:bg-sand/50'}`}
                       title="Load Template"
                     >
                       <LayoutTemplate className="w-4 h-4" />
                     </button>
                     
                     {showTemplates && (
-                      <div className="absolute left-0 top-full mt-2 w-48 rounded-lg shadow-xl overflow-hidden bg-[var(--color-washi)] border border-[var(--color-sand)] z-50">
-                        <div className="px-3 py-2 text-xs font-medium border-b border-[var(--color-sand)] text-[var(--color-stone)]">
+                      <div className="absolute left-0 top-full mt-2 w-48 rounded-lg shadow-xl overflow-hidden bg-washi border border-sand z-50">
+                        <div className="px-3 py-2 text-xs font-medium border-b border-sand text-stone">
                           Templates
                         </div>
                         {templates.map((template) => (
@@ -570,12 +596,12 @@ export default function CreatePresentation() {
                               handleLoadTemplate(template.id);
                               setShowTemplates(false);
                             }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors text-[var(--color-clay)] hover:text-[var(--color-ink)] hover:bg-[var(--color-sand)]/50 text-left"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors text-clay hover:text-ink hover:bg-sand/50 text-left"
                           >
                             {template.icon}
                             <div>
                               <p className="text-sm">{template.name}</p>
-                              <p className="text-xs text-[var(--color-stone)]">{template.description}</p>
+                              <p className="text-xs text-stone">{template.description}</p>
                             </div>
                           </button>
                         ))}
@@ -587,7 +613,7 @@ export default function CreatePresentation() {
                   <button
                     onClick={handleUndo}
                     disabled={historyIndex <= 0}
-                    className="p-2 rounded-md text-[var(--color-clay)] hover:text-[var(--color-ink)] hover:bg-[var(--color-sand)]/50 transition-all disabled:opacity-30"
+                    className="p-2 rounded-md text-clay hover:text-ink hover:bg-sand/50 transition-all disabled:opacity-30"
                     title="Undo (Ctrl+Z)"
                   >
                     <Undo className="w-4 h-4" />
@@ -595,15 +621,15 @@ export default function CreatePresentation() {
                   <button
                     onClick={handleRedo}
                     disabled={historyIndex >= history.length - 1}
-                    className="p-2 rounded-md text-[var(--color-clay)] hover:text-[var(--color-ink)] hover:bg-[var(--color-sand)]/50 transition-all disabled:opacity-30"
+                    className="p-2 rounded-md text-clay hover:text-ink hover:bg-sand/50 transition-all disabled:opacity-30"
                     title="Redo (Ctrl+Shift+Z)"
                   >
                     <Redo className="w-4 h-4" />
                   </button>
-                  <div className="w-px h-6 bg-[var(--color-sand)] mx-1" />
+                  <div className="w-px h-6 bg-sand mx-1" />
                   <button
                     onClick={() => setShowPreview(!showPreview)}
-                    className={`p-2 rounded-md transition-all ${showPreview ? 'text-[var(--color-sage)] bg-[var(--color-sage)]/10' : 'text-[var(--color-clay)] hover:text-[var(--color-ink)] hover:bg-[var(--color-sand)]/50'}`}
+                    className={`p-2 rounded-md transition-all ${showPreview ? 'text-sage bg-sage/10' : 'text-clay hover:text-ink hover:bg-sand/50'}`}
                     title="Toggle Preview"
                   >
                     {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -612,9 +638,9 @@ export default function CreatePresentation() {
               )}
 
               {/* Editor Header */}
-              <div className="border-b border-[var(--color-sand)] px-4 py-3 bg-[var(--color-rice)]/50 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-[var(--color-clay)]">
-                  <span className="w-2 h-2 rounded-full bg-[var(--color-sage)]" />
+              <div className="border-b border-sand px-4 py-3 bg-rice/50 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-clay">
+                  <span className="w-2 h-2 rounded-full bg-sage" />
                   <span>Markdown Editor</span>
                   {isDirty && markdownContent.trim() && (
                     <span className="flex items-center gap-1 text-xs text-amber-600 ml-2">
@@ -629,36 +655,42 @@ export default function CreatePresentation() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-[var(--color-stone)]">
+                <div className="flex items-center gap-3 text-xs text-stone">
                   <span>Line {currentLine}, Col {currentColumn}</span>
                   <span>{markdownContent.length.toLocaleString()} chars</span>
                   <span>{lineNumbers.length} lines</span>
                 </div>
               </div>
-              
+
               {/* Editor with Line Numbers */}
               <div className="relative flex h-[60vh]">
                 {/* Line Numbers */}
-                <div 
-                  className="hidden md:block w-12 py-5 bg-[var(--color-rice)]/30 border-r border-[var(--color-sand)] text-right pr-3 select-none overflow-y-auto h-full"
-                  style={{ fontFamily: 'var(--font-bricolage), monospace' }}
+                <div
+                  ref={lineNumbersRef}
+                  className="hidden md:block w-12 py-5 bg-rice/30 border-r border-sand text-right pr-3 select-none h-full overflow-y-auto"
+                  style={{ 
+                    fontFamily: 'var(--font-bricolage), monospace',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                  }}
                 >
                   {lineNumbers.map((num) => (
-                    <div 
-                      key={num} 
-                      className={`text-xs leading-relaxed ${num === currentLine ? 'text-[var(--color-sage)] font-medium' : 'text-[var(--color-stone)]'}`}
+                    <div
+                      key={num}
+                      className={`text-sm leading-relaxed ${num === currentLine ? 'text-sage font-medium' : 'text-stone'}`}
                     >
                       {num}
                     </div>
                   ))}
                 </div>
-                
+
                 {/* Textarea */}
                 <textarea
                   ref={textareaRef}
                   value={markdownContent}
                   onChange={(e) => handleContentChange(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  onScroll={handleTextareaScroll}
                   placeholder={`# Your Title
 
 Welcome to your presentation.
@@ -682,31 +714,31 @@ print("Hello, World!")
 ## Thank You
 
 Questions welcome`}
-                  className={`${showPreview ? 'w-1/2' : 'flex-1'} h-full p-5 font-mono text-sm bg-[var(--color-rice)] text-[var(--color-charcoal)] 
-                           resize-none focus:outline-none focus:ring-0 leading-relaxed border-r border-[var(--color-sand)]`}
+                  className={`${showPreview ? 'w-1/2' : 'flex-1'} h-full p-5 font-mono text-sm bg-rice text-charcoal
+                           resize-none focus:outline-none focus:ring-0 leading-relaxed border-r border-sand`}
                   spellCheck={false}
                   style={{ fontFamily: 'var(--font-bricolage), monospace' }}
                 />
                 
                 {/* Preview Panel */}
                 {showPreview && (
-                  <div className="w-1/2 h-full overflow-y-auto bg-[var(--color-washi)] p-5">
+                  <div className="w-1/2 h-full overflow-y-auto bg-washi p-5">
                     <div className="prose prose-sm max-w-none">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeRaw]}
                         components={{
-                          h1: ({ children }) => <h1 className="text-2xl font-normal mb-4 text-[var(--color-ink)]">{children}</h1>,
-                          h2: ({ children }) => <h2 className="text-xl font-normal mb-3 text-[var(--color-charcoal)]">{children}</h2>,
-                          h3: ({ children }) => <h3 className="text-lg font-normal mb-2 text-[var(--color-charcoal)]">{children}</h3>,
-                          p: ({ children }) => <p className="text-sm leading-relaxed mb-4 text-[var(--color-charcoal)]">{children}</p>,
-                          ul: ({ children }) => <ul className="list-disc list-inside mb-4 text-sm text-[var(--color-charcoal)]">{children}</ul>,
-                          ol: ({ children }) => <ol className="list-decimal list-inside mb-4 text-sm text-[var(--color-charcoal)]">{children}</ol>,
+                          h1: ({ children }) => <h1 className="text-2xl font-normal mb-4 text-ink">{children}</h1>,
+                          h2: ({ children }) => <h2 className="text-xl font-normal mb-3 text-charcoal">{children}</h2>,
+                          h3: ({ children }) => <h3 className="text-lg font-normal mb-2 text-charcoal">{children}</h3>,
+                          p: ({ children }) => <p className="text-sm leading-relaxed mb-4 text-charcoal">{children}</p>,
+                          ul: ({ children }) => <ul className="list-disc list-inside mb-4 text-sm text-charcoal">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal list-inside mb-4 text-sm text-charcoal">{children}</ol>,
                           li: ({ children }) => <li className="mb-1">{children}</li>,
                           code: ({ children, className }) => {
                             const match = /language-(\w+)/.exec(className || '');
                             const language = match ? match[1] : '';
-                            
+
                             if (language) {
                               return (
                                 <SyntaxHighlighter
@@ -723,29 +755,29 @@ Questions welcome`}
                                 </SyntaxHighlighter>
                               );
                             }
-                            
+
                             return (
-                              <code className="px-1.5 py-0.5 rounded text-xs font-mono bg-[var(--color-sand)] text-[var(--color-ink)]">
+                              <code className="px-1.5 py-0.5 rounded text-xs font-mono bg-sand text-ink">
                                 {children}
                               </code>
                             );
                           },
                           pre: ({ children }) => <>{children}</>,
                           blockquote: ({ children }) => (
-                            <blockquote className="pl-4 italic mb-4 border-l-2 border-[var(--color-sage)] text-[var(--color-clay)]">
+                            <blockquote className="pl-4 italic mb-4 border-l-2 border-sage text-clay">
                               {children}
                             </blockquote>
                           ),
                           table: ({ children }) => (
                             <div className="overflow-x-auto mb-4">
-                              <table className="w-full border-collapse text-sm border border-[var(--color-sand)]">
+                              <table className="w-full border-collapse text-sm border border-sand">
                                 {children}
                               </table>
                             </div>
                           ),
-                          thead: ({ children }) => <thead className="bg-[var(--color-sand)]/30">{children}</thead>,
-                          th: ({ children }) => <th className="px-3 py-2 text-left font-medium border border-[var(--color-sand)] text-[var(--color-ink)]">{children}</th>,
-                          td: ({ children }) => <td className="px-3 py-2 border border-[var(--color-sand)] text-[var(--color-charcoal)]">{children}</td>,
+                          thead: ({ children }) => <thead className="bg-sand/30">{children}</thead>,
+                          th: ({ children }) => <th className="px-3 py-2 text-left font-medium border border-sand text-ink">{children}</th>,
+                          td: ({ children }) => <td className="px-3 py-2 border border-sand text-charcoal">{children}</td>,
                         }}
                       >
                         {markdownContent || '*Preview will appear here*'}
@@ -756,8 +788,8 @@ Questions welcome`}
               </div>
               
               {/* Editor Footer */}
-              <div className="border-t border-[var(--color-sand)] px-4 py-4 bg-[var(--color-rice)]/50 flex items-center justify-between">
-                <div className="flex items-center gap-4 text-xs text-[var(--color-stone)]">
+              <div className="border-t border-sand px-4 py-4 bg-rice/50 flex items-center justify-between">
+                <div className="flex items-center gap-4 text-xs text-stone">
                   <span>
                     {isDirty && markdownContent.trim() 
                       ? 'Save to enable presentation'
@@ -766,7 +798,7 @@ Questions welcome`}
                   </span>
                   <button
                     onClick={() => setShowToolbar(!showToolbar)}
-                    className="text-[var(--color-clay)] hover:text-[var(--color-ink)] transition-colors"
+                    className="text-clay hover:text-ink transition-colors"
                   >
                     {showToolbar ? 'Hide Toolbar' : 'Show Toolbar'}
                   </button>
@@ -775,9 +807,9 @@ Questions welcome`}
                   <button
                     onClick={handleSaveClick}
                     disabled={!markdownContent.trim() || !isDirty}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-washi)] hover:bg-[var(--color-sand)] 
-                             disabled:bg-[var(--color-sand)]/50 disabled:text-[var(--color-clay)] disabled:cursor-not-allowed
-                             text-[var(--color-ink)] border border-[var(--color-sand)] rounded-md text-sm font-medium 
+                    className="flex items-center gap-2 px-4 py-2.5 bg-washi hover:bg-sand
+                             disabled:bg-sand/50 disabled:text-clay disabled:cursor-not-allowed
+                             text-ink border border-sand rounded-md text-sm font-medium
                              transition-all duration-300"
                   >
                     <Save className="w-4 h-4" />
@@ -787,9 +819,9 @@ Questions welcome`}
                     onClick={handlePresentMarkdown}
                     disabled={!canPresent}
                     title={isDirty ? 'Save your changes before presenting' : 'Start presentation'}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[var(--color-ink)] hover:bg-[var(--color-charcoal)] 
-                             disabled:bg-[var(--color-sand)] disabled:text-[var(--color-clay)] disabled:cursor-not-allowed
-                             text-[var(--color-rice)] rounded-md text-sm font-medium transition-all duration-300
+                    className="flex items-center gap-2 px-6 py-2.5 bg-ink hover:bg-charcoal
+                             disabled:bg-sand disabled:text-clay disabled:cursor-not-allowed
+                             text-rice rounded-md text-sm font-medium transition-all duration-300
                              disabled:hover:transform-none hover:-translate-y-0.5"
                   >
                     <Play className="w-4 h-4" />
@@ -802,7 +834,7 @@ Questions welcome`}
             {/* Empty State Hint */}
             {!markdownContent.trim() && (
               <div className="mt-4 text-center">
-                <p className="text-[var(--color-stone)] text-sm">
+                <p className="text-stone text-sm">
                   Start typing or use templates from the toolbar to begin
                 </p>
               </div>
@@ -813,25 +845,25 @@ Questions welcome`}
       {/* Save Dialog - only for new files */}
       {isSaveDialogOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--color-washi)] rounded-lg border border-[var(--color-sand)] p-6 w-full max-w-md shadow-xl">
+          <div className="bg-washi rounded-lg border border-sand p-6 w-full max-w-md shadow-xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-[var(--color-ink)]">
+              <h3 className="text-lg font-medium text-ink">
                 Save Presentation
               </h3>
               <button
                 onClick={() => setIsSaveDialogOpen(false)}
-                className="text-[var(--color-clay)] hover:text-[var(--color-ink)] transition-colors"
+                className="text-clay hover:text-ink transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
-            <p className="text-sm text-[var(--color-charcoal)]/60 mb-4">
+
+            <p className="text-sm text-charcoal/60 mb-4">
               Save this presentation to the presentations directory.
             </p>
-            
+
             <div className="mb-4">
-              <label className="block text-sm font-medium text-[var(--color-ink)] mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 File Name
               </label>
               <input
@@ -839,28 +871,28 @@ Questions welcome`}
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
                 placeholder="my-presentation"
-                className="w-full px-3 py-2 bg-[var(--color-rice)] border border-[var(--color-sand)] rounded-md 
-                         text-[var(--color-ink)] placeholder-[var(--color-stone)]
-                         focus:outline-none focus:border-[var(--color-sage)]"
+                className="w-full px-3 py-2 bg-rice border border-sand rounded-md
+                         text-ink placeholder-stone
+                         focus:outline-none focus:border-sage"
               />
-              <p className="text-xs text-[var(--color-stone)] mt-1">
+              <p className="text-xs text-stone mt-1">
                 Use lowercase letters, numbers, and hyphens only
               </p>
             </div>
-            
+
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setIsSaveDialogOpen(false)}
-                className="px-4 py-2 text-sm text-[var(--color-clay)] hover:text-[var(--color-ink)] transition-colors"
+                className="px-4 py-2 text-sm text-clay hover:text-ink transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreatePresentation}
                 disabled={!fileName.trim() || isSaving}
-                className="flex items-center gap-2 px-4 py-2 bg-[var(--color-ink)] hover:bg-[var(--color-charcoal)] 
-                         disabled:bg-[var(--color-sand)] disabled:text-[var(--color-clay)] disabled:cursor-not-allowed
-                         text-[var(--color-rice)] rounded-md text-sm font-medium transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-ink hover:bg-charcoal
+                         disabled:bg-sand disabled:text-clay disabled:cursor-not-allowed
+                         text-rice rounded-md text-sm font-medium transition-all"
               >
                 <Save className="w-4 h-4" />
                 <span>{isSaving ? 'Saving...' : 'Save'}</span>
@@ -869,6 +901,15 @@ Questions welcome`}
           </div>
         </div>
       )}
+
+      {/* AI Chat Assistant */}
+      <PresentationChat
+        currentContent={markdownContent}
+        onApplyContent={(content) => {
+          setMarkdownContent(content);
+          addToHistory(content, 0);
+        }}
+      />
     </div>
   );
 }

@@ -722,12 +722,16 @@ export default function PresentationViewer({ params }: { params: Promise<{ slug:
                         {children}
                       </AnimatedElement>
                     ),
-                    li: ({ children }) => (
-                      <li className="flex items-start gap-3">
-                        <span style={{ color: 'var(--color-sage)' }} className="mt-1.5 flex-shrink-0">•</span>
-                        <span>{children}</span>
-                      </li>
-                    ),
+                    li: ({ children }) => {
+                      // Always use div instead of li to avoid invalid nested list HTML
+                      // The parent ol/ul provides the list context
+                      return (
+                        <div className="flex items-start gap-2 py-1">
+                          <span style={{ color: 'var(--color-sage)' }} className="mt-1.5 flex-shrink-0">•</span>
+                          <span>{children}</span>
+                        </div>
+                      );
+                    },
                     code: ({ children, className }) => {
                       const match = /language-(\w+)/.exec(className || '');
                       const language = match ? match[1] : '';
