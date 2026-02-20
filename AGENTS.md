@@ -69,12 +69,58 @@
 - Store user preferences in localStorage
 - Use sessionStorage for temporary data (e.g., live presentations)
 
+#### Complex State Patterns
+- **Undo/Redo**: Use history stack with max depth limit
+  ```typescript
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  ```
+- **Debounced operations**: Use `useEffect` with timer for auto-save
+  ```typescript
+  useEffect(() => {
+    const timer = setTimeout(() => saveContent(), 30000);
+    return () => clearTimeout(timer);
+  }, [content]);
+  ```
+
 ### API Routes
 - Use Next.js App Router conventions
 - Return JSON with `NextResponse.json()`
 - Include proper error status codes
 - Validate file paths for security
 - Handle edge cases (missing files, empty directories)
+
+#### File System Security
+- Always validate file paths to prevent path traversal attacks:
+  ```typescript
+  const presentationsDir = path.join(process.cwd(), 'presentations');
+  const filePath = path.join(presentationsDir, `${slug}.md`);
+  
+  if (!filePath.startsWith(presentationsDir)) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+  }
+  ```
+- Sanitize user input (filenames, slugs) with regex validation
+- Use `gray-matter` for safe frontmatter parsing
+
+### AI SDK Usage
+
+When working with AI features:
+
+#### Streaming Responses
+- Use `streamText` for streaming AI responses
+- Return stream using `toDataStreamResponse()`
+- Handle streaming on client with proper state management
+
+#### System Prompts
+- Define clear system prompts for AI behavior
+- Include context about data format (markdown, slides, etc.)
+- Specify expected output format in prompts
+
+#### Error Handling
+- Wrap AI calls in try/catch blocks
+- Provide fallback responses for API failures
+- Validate AI-generated content before applying
 
 ### Performance
 - Use dynamic imports for large libraries when possible
